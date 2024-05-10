@@ -11,5 +11,13 @@ pool:
 
 steps:
 - script: |
-    make
-  displayName: 'make'
+    sudo apt-get update
+    sudo apt-get install -y build-essential uuid-dev iasl gcc nasm python3-distutils git gcc-aarch64-linux-gnu
+    git clone https://github.com/tianocore/edk2.git
+    cd edk2
+    git submodule update --init
+    make -C BaseTools
+    . edksetup.sh
+    export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
+    build -a AARCH64 -t GCC5 -p ArmVirtPkg/ArmVirtQemu.dsc
+  displayName: 'Compile EDK2 for AArch64'
