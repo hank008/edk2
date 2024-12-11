@@ -183,6 +183,9 @@ INF  MdeModulePkg/Core/Pei/PeiMain.inf
 INF  MdeModulePkg/Universal/PCD/Pei/Pcd.inf
 INF  MdeModulePkg/Universal/ReportStatusCodeRouter/Pei/ReportStatusCodeRouterPei.inf
 INF  MdeModulePkg/Universal/StatusCodeHandler/Pei/StatusCodeHandlerPei.inf
+!if $(CC_MEASUREMENT_ENABLE) == TRUE
+  INF  OvmfPkg/Tcg/TdTcg2Pei/TdTcg2Pei.inf
+!endif
 INF  OvmfPkg/PlatformPei/PlatformPei.inf
 INF  MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf
 INF  UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf
@@ -264,7 +267,6 @@ INF  OvmfPkg/VirtioPciDeviceDxe/VirtioPciDeviceDxe.inf
 INF  OvmfPkg/Virtio10Dxe/Virtio10.inf
 INF  OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
 INF  OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
-INF  OvmfPkg/VirtioRngDxe/VirtioRng.inf
 INF  OvmfPkg/VirtioSerialDxe/VirtioSerial.inf
 !if $(PVSCSI_ENABLE) == TRUE
 INF  OvmfPkg/PvScsiDxe/PvScsiDxe.inf
@@ -328,6 +330,11 @@ INF  OvmfPkg/VirtioFsDxe/VirtioFsDxe.inf
 INF MdeModulePkg/Logo/LogoDxe.inf
 
 INF OvmfPkg/TdxDxe/TdxDxe.inf
+
+#
+# Hash2 Protocol producer
+#
+INF SecurityPkg/Hash2DxeCrypto/Hash2DxeCrypto.inf
 
 #
 # Network modules
@@ -401,6 +408,8 @@ INF OvmfPkg/Tcg/TdTcg2Dxe/TdTcg2Dxe.inf
 !include OvmfPkg/Include/Fdf/OvmfTpmDxe.fdf.inc
 
 !include OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
+!include OvmfPkg/Include/Fdf/MorLock.fdf.inc
+!include OvmfPkg/Include/Fdf/OvmfRngDxe.fdf.inc
 
 ################################################################################
 
@@ -516,7 +525,7 @@ FILE FV_IMAGE = 9E21FD93-9C72-4c15-8C4B-E77F1DB2D792 {
     VERSION   STRING="$(INF_VERSION)" Optional BUILD_NUM=$(BUILD_NUMBER)
   }
 
-[Rule.Common.SEC.RESET_VECTOR]
+[Rule.Common.USER_DEFINED.RESET_VECTOR]
   FILE RAW = $(NAMED_GUID) {
     RAW BIN   Align = 16   |.bin
   }

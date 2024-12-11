@@ -127,11 +127,12 @@
   ShellLib|ShellPkg/Library/UefiShellLib/UefiShellLib.inf
   FileHandleLib|MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
   ImagePropertiesRecordLib|MdeModulePkg/Library/ImagePropertiesRecordLib/ImagePropertiesRecordLib.inf
-
-!if $(SECURE_BOOT_ENABLE) == TRUE
   RngLib|MdeModulePkg/Library/BaseRngLibTimerLib/BaseRngLibTimerLib.inf
   IntrinsicLib|CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
   OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLibCrypto.inf
+  BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
+
+!if $(SECURE_BOOT_ENABLE) == TRUE
   PlatformSecureLib|SecurityPkg/Library/PlatformSecureLibNull/PlatformSecureLibNull.inf
   AuthVariableLib|SecurityPkg/Library/AuthVariableLib/AuthVariableLib.inf
   SecureBootVariableLib|SecurityPkg/Library/SecureBootVariableLib/SecureBootVariableLib.inf
@@ -318,13 +319,25 @@
     #  Emulator, OS WIN application
     #  CLANGPDB is cross OS tool chain. It depends on WIN_HOST_BUILD flag
     #  to build WinHost application.
+    #
+    # USER_DEFINED components skip normal NULL lib linking, so we have to link this
+    # specially here for the libs that have stack guard enabled
     ##
-    EmulatorPkg/Win/Host/WinHost.inf
+    EmulatorPkg/Win/Host/WinHost.inf {
+      <LibraryClasses>
+        NULL|MdePkg/Library/StackCheckLibNull/StackCheckLibNull.inf
+    }
   !else
     ##
     #  Emulator, OS POSIX application
+    #
+    # USER_DEFINED components skip normal NULL lib linking, so we have to link this
+    # specially here for the libs that have stack guard enabled
     ##
-    EmulatorPkg/Unix/Host/Host.inf
+    EmulatorPkg/Unix/Host/Host.inf {
+      <LibraryClasses>
+        NULL|MdePkg/Library/StackCheckLibNull/StackCheckLibNull.inf
+    }
   !endif
 !endif
 
@@ -397,6 +410,15 @@
   MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
   EmulatorPkg/PlatformSmbiosDxe/PlatformSmbiosDxe.inf
   EmulatorPkg/TimerDxe/Timer.inf
+
+  #
+  # Rng Protocol producer
+  #
+  SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
+  #
+  # Hash2 Protocol producer
+  #
+  SecurityPkg/Hash2DxeCrypto/Hash2DxeCrypto.inf
 
 !if $(SECURE_BOOT_ENABLE) == TRUE
   SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf

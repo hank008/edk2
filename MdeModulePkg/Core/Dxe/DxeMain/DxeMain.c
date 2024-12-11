@@ -203,6 +203,8 @@ EFI_HANDLE            gDxeCoreImageHandle = NULL;
 
 BOOLEAN  gMemoryMapTerminated = FALSE;
 
+static BOOLEAN  mExitBootServicesCalled = FALSE;
+
 //
 // EFI Decompress Protocol
 //
@@ -275,6 +277,12 @@ DxeMain (
   CoreInitializeMemoryServices (&HobStart, &MemoryBaseAddress, &MemoryLength);
 
   MemoryProfileInit (HobStart);
+
+  //
+  // Start the Handle Services.
+  //
+  Status = CoreInitializeHandleServices ();
+  ASSERT_EFI_ERROR (Status);
 
   //
   // Start the Image Services.
@@ -772,7 +780,10 @@ CoreExitBootServices (
   // Notify other drivers of their last chance to use boot services
   // before the memory map is terminated.
   //
-  CoreNotifySignalList (&gEfiEventBeforeExitBootServicesGuid);
+  if (!mExitBootServicesCalled) {
+    CoreNotifySignalList (&gEfiEventBeforeExitBootServicesGuid);
+    mExitBootServicesCalled = TRUE;
+  }
 
   //
   // Disable Timer
